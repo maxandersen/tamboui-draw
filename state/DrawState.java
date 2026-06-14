@@ -722,11 +722,7 @@ public class DrawState {
     public void pushUndo() {
         undoStack.push(createSnapshot());
         while (undoStack.size() > MAX_HISTORY) {
-            // remove the oldest (bottom of deque)
-            Deque<Snapshot> temp = new ArrayDeque<>();
-            while (!undoStack.isEmpty()) temp.push(undoStack.pop());
-            temp.pop(); // remove oldest
-            while (!temp.isEmpty()) undoStack.push(temp.pop());
+            undoStack.removeLast(); // O(1) — removes oldest snapshot
         }
         redoStack.clear();
     }
@@ -739,10 +735,7 @@ public class DrawState {
         Snapshot snap = undoStack.pop();
         redoStack.push(createSnapshot());
         while (redoStack.size() > MAX_HISTORY) {
-            Deque<Snapshot> temp = new ArrayDeque<>();
-            while (!redoStack.isEmpty()) temp.push(redoStack.pop());
-            temp.pop();
-            while (!temp.isEmpty()) redoStack.push(temp.pop());
+            redoStack.removeLast();
         }
         restoreSnapshot(snap);
         setStatus("Undid last change.");
@@ -756,10 +749,7 @@ public class DrawState {
         Snapshot snap = redoStack.pop();
         undoStack.push(createSnapshot());
         while (undoStack.size() > MAX_HISTORY) {
-            Deque<Snapshot> temp = new ArrayDeque<>();
-            while (!undoStack.isEmpty()) temp.push(undoStack.pop());
-            temp.pop();
-            while (!temp.isEmpty()) undoStack.push(temp.pop());
+            undoStack.removeLast();
         }
         restoreSnapshot(snap);
         setStatus("Redid change.");
@@ -2172,6 +2162,7 @@ public class DrawState {
             // Find the smallest box that fully contains this object's bounds
             String bestParentId = null;
             int bestArea = Integer.MAX_VALUE;
+            int bestZ = Integer.MAX_VALUE;
 
             for (DrawObject candidate : objs) {
                 if (!(candidate instanceof BoxObject box)) continue;
@@ -2181,8 +2172,9 @@ public class DrawState {
                         && contentBounds.top() <= bounds.top() && contentBounds.bottom() >= bounds.bottom()) {
                     int area = (contentBounds.right() - contentBounds.left())
                              * (contentBounds.bottom() - contentBounds.top());
-                    if (area < bestArea || (area == bestArea && box.z() < bestArea)) {
+                    if (area < bestArea || (area == bestArea && box.z() < bestZ)) {
                         bestArea = area;
+                        bestZ = box.z();
                         bestParentId = box.id();
                     }
                 }

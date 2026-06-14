@@ -28,7 +28,7 @@ public class DocumentIOTest {
 
     private static final Path FIXTURE = Path.of(
         System.getProperty("user.dir"),
-        "src/test-fixtures/sample-document.json"
+        "test-fixtures/sample-document.json"
     );
 
     // ── Load fixture ─────────────────────────────────────────────────────────
