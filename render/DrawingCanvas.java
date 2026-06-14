@@ -18,17 +18,17 @@ public final class DrawingCanvas {
     private DrawingCanvas() {}
 
     /** Maps InkColor enum to Tamboui Color. */
-    /** Maps InkColor to the exact Tailwind hex values used by the TS version. */
+    /** Maps InkColor to Nord theme colors. */
     public static Color toTamboColor(InkColor color) {
         return switch (color) {
-            case WHITE   -> Color.rgb(226, 232, 240); // #e2e8f0 slate-100
-            case RED     -> Color.rgb(239, 68, 68);   // #ef4444 red-500
-            case ORANGE  -> Color.rgb(249, 115, 22);  // #f97316 orange-500
-            case YELLOW  -> Color.rgb(234, 179, 8);   // #eab308 yellow-500
-            case GREEN   -> Color.rgb(34, 197, 94);   // #22c55e green-500
-            case CYAN    -> Color.rgb(6, 182, 212);   // #06b6d4 cyan-500
-            case BLUE    -> Color.rgb(59, 130, 246);   // #3b82f6 blue-500
-            case MAGENTA -> Color.rgb(217, 70, 239);  // #d946ef fuchsia-500
+            case WHITE   -> Color.rgb(236, 239, 244); // nord6  #eceff4 Snow Storm
+            case RED     -> Color.rgb(191, 97, 106);  // nord11 #bf616a Aurora red
+            case ORANGE  -> Color.rgb(208, 135, 112); // nord12 #d08770 Aurora orange
+            case YELLOW  -> Color.rgb(235, 203, 139); // nord13 #ebcb8b Aurora yellow
+            case GREEN   -> Color.rgb(163, 190, 140); // nord14 #a3be8c Aurora green
+            case CYAN    -> Color.rgb(136, 192, 208); // nord8  #88c0d0 Frost
+            case BLUE    -> Color.rgb(129, 161, 193); // nord9  #81a1c1 Frost
+            case MAGENTA -> Color.rgb(180, 142, 173); // nord15 #b48ead Aurora purple
         };
     }
 

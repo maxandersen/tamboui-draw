@@ -21,16 +21,16 @@ public final class Theme {
     public static final int COLOR_SWATCH_WIDTH = 3;
     public static final int COLOR_SWATCH_COLUMNS = 4;
 
-    // Colors — matching TS COLORS object (approximated with ANSI/indexed)
-    public static final Color PANEL_BG = Color.indexed(17);       // #0f172a dark slate
-    public static final Color BORDER = Color.indexed(60);         // #475569 slate-600
-    public static final Color TEXT = Color.indexed(253);           // #e2e8f0 slate-100
-    public static final Color DIM = Color.indexed(248);           // #94a3b8 slate-400
-    public static final Color SELECT = Color.indexed(39);         // #38bdf8 cyan-400
-    public static final Color ACCENT = Color.indexed(44);         // #22d3ee cyan-300
-    public static final Color WARNING = Color.indexed(214);       // #f59e0b amber-500
-    public static final Color SUCCESS = Color.indexed(34);        // #22c55e green-500
-    public static final Color PAINT = Color.indexed(135);         // #a855f7 purple-500
+    // Colors — Nord theme (https://www.nordtheme.com)
+    public static final Color PANEL_BG = Color.rgb(46, 52, 64);    // nord0  #2e3440
+    public static final Color BORDER = Color.rgb(76, 86, 106);     // nord3  #4c566a
+    public static final Color TEXT = Color.rgb(236, 239, 244);     // nord6  #eceff4
+    public static final Color DIM = Color.rgb(216, 222, 233);      // nord4  #d8dee9
+    public static final Color SELECT = Color.rgb(136, 192, 208);   // nord8  #88c0d0
+    public static final Color ACCENT = Color.rgb(129, 161, 193);   // nord9  #81a1c1
+    public static final Color WARNING = Color.rgb(235, 203, 139);  // nord13 #ebcb8b
+    public static final Color SUCCESS = Color.rgb(163, 190, 140);  // nord14 #a3be8c
+    public static final Color PAINT = Color.rgb(180, 142, 173);    // nord15 #b48ead
 
     // Derived styles
     public static final Style BORDER_STYLE = Style.EMPTY.fg(BORDER).bg(PANEL_BG);

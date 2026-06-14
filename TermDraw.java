@@ -4,7 +4,7 @@
 //DEPS com.fasterxml.jackson.core:jackson-databind:2.18.3
 //JAVA 26+
 //JAVAC_OPTIONS --enable-preview --release 26
-//JAVA_OPTIONS --enable-preview
+//JAVA_OPTIONS --enable-preview --enable-native-access=ALL-UNNAMED
 //REPOS mavencentral,sonatype-snapshots=https://central.sonatype.com/repository/maven-snapshots/
 //SOURCES model/*.java
 //SOURCES state/*.java  

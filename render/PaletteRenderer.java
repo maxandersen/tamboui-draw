@@ -130,8 +130,8 @@ public final class PaletteRenderer {
 
     private static Color contrastFg(InkColor color) {
         return switch (color) {
-            case WHITE, YELLOW, CYAN -> Color.BLACK;
-            default -> Color.WHITE;
+            case WHITE, YELLOW -> Color.rgb(46, 52, 64);  // nord0 dark on light
+            default -> Color.rgb(236, 239, 244);           // nord6 light on dark
         };
     }
 
