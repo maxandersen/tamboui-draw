@@ -39,12 +39,22 @@ public final class PaletteHitTest {
         int colorStart = styleStart + styleRows + 1; // +1 for spacer
 
         // Row colorStart: "COLORS" label
-        // Rows colorStart+1 .. colorStart+8: color swatches
+        // Rows colorStart+1..: 4-column grid of 3-char-wide swatches
         InkColor[] colors = InkColor.values();
+        int cols = 4;
+        int swatchWidth = 3;
         int colorFirstRow = colorStart + 1;
-        if (row >= colorFirstRow && row < colorFirstRow + colors.length) {
-            state.setInkColor(colors[row - colorFirstRow]);
-            return true;
+        int colorRows = (colors.length + cols - 1) / cols;
+        if (row >= colorFirstRow && row < colorFirstRow + colorRows) {
+            int gridRow = row - colorFirstRow;
+            int gridCol = (x - paletteLeft - 1) / swatchWidth; // -1 for left padding
+            if (gridCol >= 0 && gridCol < cols) {
+                int idx = gridRow * cols + gridCol;
+                if (idx >= 0 && idx < colors.length) {
+                    state.setInkColor(colors[idx]);
+                    return true;
+                }
+            }
         }
 
         // Style section clicks

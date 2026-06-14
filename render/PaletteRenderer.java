@@ -46,21 +46,32 @@ public final class PaletteRenderer {
 
         y++; // spacer
 
-        // === Color Swatches ===
+        // === Color Swatches (4-column grid, 3 chars wide each) ===
         if (y < area.bottom()) {
-            y = renderLabel(buffer, leftPad, y, area, "COLORS", Style.EMPTY.fg(Color.CYAN).bold());
+            y = renderLabel(buffer, leftPad, y, area, "COLORS {/}", Style.EMPTY.fg(Color.CYAN).bold());
             y++;
             InkColor[] colors = InkColor.values();
-            for (int i = 0; i < colors.length && y < area.bottom(); i++) {
+            int cols = 4;
+            int swatchWidth = 3;
+            for (int i = 0; i < colors.length; i++) {
+                int col = i % cols;
+                int row = i / cols;
+                int sx = leftPad + col * swatchWidth;
+                int sy = y + row;
+                if (sy >= area.bottom() || sx + swatchWidth > area.right()) continue;
+
                 boolean active = state.currentInkColor() == colors[i];
-                Color c = DrawingCanvas.toTamboColor(colors[i]);
-                String prefix = active ? "▸ " : "  ";
+                Color bg = DrawingCanvas.toTamboColor(colors[i]);
+                Color fg = contrastFg(colors[i]);
+                String text = active ? " ● " : "   ";
                 Style s = active
-                    ? Style.EMPTY.fg(Color.BLACK).bg(c).bold()
-                    : Style.EMPTY.fg(c);
-                renderLabel(buffer, leftPad, y, area, prefix + colors[i].value(), s);
-                y++;
+                    ? Style.EMPTY.fg(fg).bg(bg).bold()
+                    : Style.EMPTY.bg(bg);
+                for (int c = 0; c < text.length(); c++) {
+                    buffer.set(sx + c, sy, new Cell(String.valueOf(text.charAt(c)), s));
+                }
             }
+            y += (colors.length + cols - 1) / cols; // advance past the swatch rows
         }
     }
 
@@ -141,6 +152,15 @@ public final class PaletteRenderer {
                 y++;
                 yield y;
             }
+        };
+    }
+
+    /** Returns a contrasting foreground for readability on a colored swatch. */
+    private static Color contrastFg(InkColor color) {
+        // Dark text on light backgrounds, light text on dark backgrounds
+        return switch (color) {
+            case WHITE, YELLOW, CYAN -> Color.BLACK;
+            default -> Color.WHITE;
         };
     }
 
