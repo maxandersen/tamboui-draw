@@ -22,13 +22,13 @@ Ported from [termDRAW](https://github.com/nicholasgasior/termdraw) — the origi
 ## Run
 
 ```bash
-jbang TermDraw.java
+jbang TambouiDraw.java
 ```
 
 Or directly from GitHub:
 
 ```bash
-jbang https://github.com/maxandersen/tamboui-draw/blob/main/TermDraw.java
+jbang https://github.com/maxandersen/tamboui-draw/blob/main/TambouiDraw.java
 ```
 
 ## Keys
@@ -55,7 +55,7 @@ jbang https://github.com/maxandersen/tamboui-draw/blob/main/TermDraw.java
 ## Project Structure
 
 ```
-TermDraw.java       # Main entry, JBang metadata, TuiRunner setup
+TambouiDraw.java    # Main entry, JBang metadata, TuiRunner setup
 model/              # DrawObject sealed interface, records, enums
 state/              # DrawState, DragState, HitTest
 render/             # DrawingCanvas, GridRenderer, BorderGlyphs, BrailleRenderer

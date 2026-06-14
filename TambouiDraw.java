@@ -2,12 +2,13 @@
 //DEPS dev.tamboui:tamboui-toolkit:LATEST
 //DEPS dev.tamboui:tamboui-jline3-backend:LATEST
 //DEPS com.fasterxml.jackson.core:jackson-databind:2.18.3
+//DEPS org.aesh:aesh:3.14.2
 //JAVA 26+
 //JAVAC_OPTIONS --enable-preview --release 26
 //JAVA_OPTIONS --enable-preview --enable-native-access=ALL-UNNAMED
 //REPOS mavencentral,sonatype-snapshots=https://central.sonatype.com/repository/maven-snapshots/
 //SOURCES model/*.java
-//SOURCES state/*.java  
+//SOURCES state/*.java
 //SOURCES render/*.java
 //SOURCES input/*.java
 //SOURCES layout/*.java
@@ -25,30 +26,116 @@ import render.PaletteHitTest;
 import render.StartupLogo;
 import render.Theme;
 import state.*;
+import org.aesh.AeshRuntimeRunner;
+import org.aesh.command.*;
+import org.aesh.command.invocation.CommandInvocation;
+import org.aesh.command.option.Argument;
+import org.aesh.command.option.Option;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 
-public class TermDraw {
-    private static DrawState state;
-    private static String filename = null;
-    private static Path filePath = null;
-    private static dev.tamboui.layout.Rect lastArea = null;  // tracks terminal size for palette hit-testing
+@CommandDefinition(
+    name = "tambouiDRAW",
+    description = "Terminal diagramming app built with Tamboui + JBang.",
+    version = "tambouiDRAW 0.1.0"
+)
+public class TambouiDraw implements Command<CommandInvocation> {
 
-    public static void main(String[] args) throws Exception {
-        if (args.length > 0) {
-            filePath = Path.of(args[0]);
-            filename = filePath.getFileName().toString();
+    @Argument(
+        description = "Diagram file to load, or - for stdin.",
+        paramLabel = "FILE"
+    )
+    private String inputFile;
+
+    @Option(
+        name = "output",
+        shortName = 'o',
+        description = "Write exported art to file instead of opening the editor."
+    )
+    private String outputPath;
+
+    @Option(
+        name = "fenced",
+        hasValue = false,
+        description = "Wrap output in a fenced markdown code block."
+    )
+    private boolean fenced;
+
+    @Option(
+        name = "plain",
+        hasValue = false,
+        description = "Output plain text (default)."
+    )
+    private boolean plain;
+
+    // ── Runtime state ───────────────────────────────────────────────────
+    private DrawState state;
+    private String filename;
+    private Path filePath;
+    private dev.tamboui.layout.Rect lastArea;
+
+    public static void main(String[] args) {
+        AeshRuntimeRunner.builder()
+            .command(TambouiDraw.class)
+            .args(args)
+            .execute();
+    }
+
+    @Override
+    public CommandResult execute(CommandInvocation invocation) {
+        try {
+            return run();
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            return CommandResult.FAILURE;
+        }
+    }
+
+    private CommandResult run() throws Exception {
+        // ── Load input ──────────────────────────────────────────────────
+        DrawDocument initialDocument = null;
+
+        if (inputFile != null) {
+            if ("-".equals(inputFile)) {
+                initialDocument = loadFromStdin();
+                filename = "<stdin>";
+            } else {
+                filePath = Path.of(inputFile);
+                filename = filePath.getFileName().toString();
+                if (Files.exists(filePath)) {
+                    try {
+                        initialDocument = DocumentIO.load(filePath);
+                    } catch (Exception e) {
+                        System.err.println("Failed to load " + filePath + ": " + e.getMessage());
+                        return CommandResult.FAILURE;
+                    }
+                }
+            }
         }
 
+        // ── Non-interactive export mode ─────────────────────────────────
+        if (outputPath != null) {
+            if (initialDocument == null) {
+                System.err.println("No input file specified for export.");
+                return CommandResult.FAILURE;
+            }
+            state = new DrawState(200, 100);
+            state.loadDocument(initialDocument);
+            String art = state.exportArt();
+            String output = fenced ? "```\n" + art + "\n```\n" : art + "\n";
+            Files.writeString(Path.of(outputPath), output);
+            System.err.println("Exported to " + outputPath);
+            return CommandResult.SUCCESS;
+        }
+
+        // ── Interactive editor mode ─────────────────────────────────────
         state = new DrawState(80, 24);
 
-        if (filePath != null && Files.exists(filePath)) {
-            try {
-                DrawDocument doc = DocumentIO.load(filePath);
-                state.loadDocument(doc);
-                StartupLogo.dismiss();
-            } catch (Exception e) {
-                state.setStatus("Failed to load: " + e.getMessage());
-            }
+        if (initialDocument != null) {
+            state.loadDocument(initialDocument);
+            StartupLogo.dismiss();
         }
 
         var config = TuiConfig.builder().mouseCapture(true).build();
@@ -62,9 +149,21 @@ public class TermDraw {
                 }
             );
         }
+
+        return CommandResult.SUCCESS;
     }
 
-    private static boolean handleEvent(Event event, TuiRunner runner) {
+    private DrawDocument loadFromStdin() throws Exception {
+        String content = new String(System.in.readAllBytes(), StandardCharsets.UTF_8);
+        if (content.isBlank()) {
+            throw new Exception("No input on stdin. Pipe a .termdraw document or pass a file argument.");
+        }
+        return DocumentIO.deserialize(content);
+    }
+
+    // ── Event handling ──────────────────────────────────────────────────
+
+    private boolean handleEvent(Event event, TuiRunner runner) {
         if (event instanceof KeyEvent key) {
             StartupLogo.dismiss();
             return handleKeyEvent(key, runner);
@@ -78,7 +177,7 @@ public class TermDraw {
         return false;
     }
 
-    private static boolean handleKeyEvent(KeyEvent key, TuiRunner runner) {
+    private boolean handleKeyEvent(KeyEvent key, TuiRunner runner) {
         if (key.isCtrlC() || (key.hasCtrl() && key.isCharIgnoreCase('q'))) {
             runner.quit();
             return true;
@@ -95,7 +194,7 @@ public class TermDraw {
         return false;
     }
 
-    private static boolean handleMouseEvent(MouseEvent mouse) {
+    private boolean handleMouseEvent(MouseEvent mouse) {
         String type = switch (mouse.kind()) {
             case PRESS -> "down";
             case RELEASE -> "up";
@@ -106,15 +205,14 @@ public class TermDraw {
         };
         if (type == null) return false;
 
-        // Palette click hit-testing: intercept left-clicks on palette before canvas
+        // Palette click hit-testing
         if (mouse.kind() == MouseEventKind.PRESS && mouse.button() == MouseButton.LEFT
                 && !state.hasActivePointerInteraction()) {
-            // Palette starts at (terminalWidth - TOOL_PALETTE_WIDTH), row 1 (below header)
             int paletteLeft = lastArea != null
                 ? lastArea.width() - Theme.TOOL_PALETTE_WIDTH
                 : 0;
             if (paletteLeft > 0 && mouse.x() >= paletteLeft) {
-                int paletteTop = 3; // below header + divider rows
+                int paletteTop = 3;
                 if (PaletteHitTest.handleClick(mouse.x(), mouse.y(), paletteLeft, paletteTop, state)) {
                     return true;
                 }
@@ -137,7 +235,7 @@ public class TermDraw {
         return true;
     }
 
-    private static KeyInput mapKeyEvent(KeyEvent key) {
+    private KeyInput mapKeyEvent(KeyEvent key) {
         boolean ctrl = key.hasCtrl();
         boolean shift = key.hasShift();
         boolean alt = key.hasAlt();
@@ -163,7 +261,7 @@ public class TermDraw {
         return null;
     }
 
-    private static void saveDocument() {
+    private void saveDocument() {
         if (filePath == null) {
             filePath = Path.of("drawing.termdraw");
             filename = "drawing.termdraw";

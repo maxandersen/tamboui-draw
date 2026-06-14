@@ -14,24 +14,22 @@ public final class StartupLogo {
     private StartupLogo() {}
 
     private static final String[] LOGO_LINES = {
-        "  `::                              :::::::-.  :::::::..    :::.  .::    .   .:::.:",
-        "   ;;                               ;;,   `';,;;;;``;;;;   ;;`;; ';;,  ;;  ;;;';;;",
-        "=[[[[[[.,cc[[[cc.=,,[[==[ccc, ,cccc,`[[     [[ [[[,/[[['  ,[[ '[[,'[[, [[, [[' '[[",
-        "   $$   $$$___--'`$$$\"``$$$$$$$$\"$$$ $$,    $$ $$$$$$c   c$$$cc$$$c Y$c$$$c$P   $$",
-        "   88,  88b    ,o,888   888 Y88\" 888o888_,o8P' 888b \"88bo,888   888  \"88\"888    \"\"",
-        "   MMM   \"YUMMMMP\"\"MM,  MMM  M'  \"MMMMMMP\"`   MMMM   \"W\" YMM   \"\"` \"M \"M\"    MM",
+        "   __                  __                _ ____  ____  ___ _       __",
+        "  / /_____ _____ ___  / /_  ____  __  __(_) __ \\/ __ \\/   | |     / /",
+        " / __/ __ `/ __ `__ \\/ __ \\/ __ \\/ / / / / / / / /_/ / /| | | /| / / ",
+        "/ /_/ /_/ / / / / / / /_/ / /_/ / /_/ / / /_/ / _, _/ ___ | |/ |/ /  ",
+        "\\__/\\__,_/_/ /_/ /_/_.___/\\____/\\__,_/_/_____/_/ |_/_/  |_|__/|__/   ",
     };
 
-    private static final String CAPTION = "tambouiDRAW  \u00b7  Tamboui + JBang  \u00b7  MIT License";
+    private static final String CAPTION = "tambouiDRAW  \u00b7  tamboui.dev + jbang.dev  \u00b7  MIT License";
 
-    // Nord gradient: dim -> frost -> aurora
+    // Nord gradient: frost -> aurora (5 rows)
     private static final int[][] GRADIENT_COLORS = {
-        {216, 222, 233},  // nord4  #d8dee9  (top)
         {143, 188, 187},  // nord7  #8fbcbb
         {136, 192, 208},  // nord8  #88c0d0
         {129, 161, 193},  // nord9  #81a1c1
         {235, 203, 139},  // nord13 #ebcb8b
-        {208, 135, 112},  // nord12 #d08770  (bottom)
+        {208, 135, 112},  // nord12 #d08770
     };
 
     private static boolean dismissed = false;
