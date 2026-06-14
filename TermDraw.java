@@ -21,6 +21,8 @@ import input.KeyInput;
 import io.DocumentIO;
 import layout.ChromeLayout;
 import model.*;
+import render.PaletteHitTest;
+import render.Theme;
 import state.*;
 import java.nio.file.*;
 
@@ -28,6 +30,7 @@ public class TermDraw {
     private static DrawState state;
     private static String filename = null;
     private static Path filePath = null;
+    private static dev.tamboui.layout.Rect lastArea = null;  // tracks terminal size for palette hit-testing
 
     public static void main(String[] args) throws Exception {
         if (args.length > 0) {
@@ -52,6 +55,7 @@ public class TermDraw {
                 (event, r) -> handleEvent(event, r),
                 frame -> {
                     var area = frame.area();
+                    lastArea = area;
                     ChromeLayout.render(area, frame.buffer(), state, filename);
                 }
             );
@@ -95,6 +99,21 @@ public class TermDraw {
             default -> null;
         };
         if (type == null) return false;
+
+        // Palette click hit-testing: intercept left-clicks on palette before canvas
+        if (mouse.kind() == MouseEventKind.PRESS && mouse.button() == MouseButton.LEFT
+                && !state.hasActivePointerInteraction()) {
+            // Palette starts at (terminalWidth - TOOL_PALETTE_WIDTH), row 1 (below header)
+            int paletteLeft = lastArea != null
+                ? lastArea.width() - Theme.TOOL_PALETTE_WIDTH
+                : 0;
+            if (paletteLeft > 0 && mouse.x() >= paletteLeft) {
+                int paletteTop = 1; // below header row
+                if (PaletteHitTest.handleClick(mouse.x(), mouse.y(), paletteLeft, paletteTop, state)) {
+                    return true;
+                }
+            }
+        }
 
         int button = mouse.button() == MouseButton.LEFT ? 0
                    : mouse.button() == MouseButton.RIGHT ? 2

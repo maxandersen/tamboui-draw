@@ -551,6 +551,10 @@ public class DrawState {
         // ── Modifier-free single keys (no ctrl/meta/option) ─────────────
         if (!key.ctrl() && !key.meta() && !key.option()) {
 
+            // ── Color cycling (all modes) ────────────────────────────────
+            if ("{".equals(name)) { cycleInkColor(-1); return true; }
+            if ("}".equals(name)) { cycleInkColor(1);  return true; }
+
             // ── Tool hotkeys (only when not editing text) ────────────────
             if (!editingText) {
                 switch (name) {

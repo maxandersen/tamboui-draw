@@ -25,6 +25,8 @@ jbang TermDraw.java
 | `s` | Select tool |
 | `Ctrl+Z` | Undo |
 | `Ctrl+Shift+Z` | Redo |
+| `[` / `]` | Cycle style (box/line/brush/border) |
+| `{` / `}` | Cycle ink color |
 | `q` | Quit |
 
 ## Project Structure
