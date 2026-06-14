@@ -45,8 +45,9 @@ jbang https://github.com/maxandersen/tamboui-draw/blob/main/TambouiDraw.java
 | `{` / `}` | Cycle ink color |
 | `Ctrl+Z` | Undo |
 | `Ctrl+Y` / `Ctrl+Shift+Z` | Redo |
-| `Ctrl+S` | Save document |
-| `Ctrl+Q` | Quit |
+| `Enter` / `Ctrl+S` | Export art to stdout and quit |
+| `Ctrl+D` | Save diagram (.termdraw JSON) |
+| `Ctrl+Q` / `Ctrl+C` | Quit without output |
 | `Tab` | Cycle tool mode |
 | `Escape` | Deselect |
 | Arrow keys | Move cursor / move selected object |

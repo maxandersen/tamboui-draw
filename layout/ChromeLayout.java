@@ -134,7 +134,7 @@ public final class ChromeLayout {
         for (int x = 1; x < area.width() - 1; x++) set(buffer, area, x, y, " ", Style.EMPTY.bg(Theme.PANEL_BG));
 
         // Shortcut hints + status
-        String hints = "B Brush \u2022 A Select \u2022 U Box \u2022 P Line \u2022 E Elbow \u2022 T Text \u2022 Esc Desel \u2022 Ctrl+S Save \u2022 Ctrl+Q Quit";
+        String hints = "Enter/Ctrl+S Export \u2022 Ctrl+D Save Diagram \u2022 Ctrl+Q Quit \u2022 B Brush \u2022 A Select \u2022 U Box \u2022 P Line \u2022 E Elbow \u2022 T Text";
         String status = state.currentStatus();
         String combined = hints + "  " + status;
         int maxLen = area.width() - 3;

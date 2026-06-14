@@ -75,6 +75,7 @@ public class TambouiDraw implements Command<CommandInvocation> {
     private String filename;
     private Path filePath;
     private dev.tamboui.layout.Rect lastArea;
+    private String savedArt;  // non-null when user saved (Enter/Ctrl+S)
 
     public static void main(String[] args) {
         AeshRuntimeRunner.builder()
@@ -115,16 +116,12 @@ public class TambouiDraw implements Command<CommandInvocation> {
             }
         }
 
-        // ── Non-interactive export mode ─────────────────────────────────
-        if (outputPath != null) {
-            if (initialDocument == null) {
-                System.err.println("No input file specified for export.");
-                return CommandResult.FAILURE;
-            }
+        // ── Non-interactive export mode (input + output, no editor) ────
+        if (outputPath != null && initialDocument != null) {
             state = new DrawState(200, 100);
             state.loadDocument(initialDocument);
             String art = state.exportArt();
-            String output = fenced ? "```\n" + art + "\n```\n" : art + "\n";
+            String output = fenced ? "```text\n" + art + "\n```\n" : art + "\n";
             Files.writeString(Path.of(outputPath), output);
             System.err.println("Exported to " + outputPath);
             return CommandResult.SUCCESS;
@@ -148,6 +145,22 @@ public class TambouiDraw implements Command<CommandInvocation> {
                     ChromeLayout.render(area, frame.buffer(), state, filename);
                 }
             );
+        }
+
+        // ── Post-exit output ────────────────────────────────────────────
+        if (savedArt != null) {
+            String output = fenced ? "```text\n" + savedArt + "\n```\n" : savedArt + "\n";
+            if (outputPath != null) {
+                Files.writeString(Path.of(outputPath), output);
+                System.err.println("Saved drawing to " + outputPath);
+            } else {
+                // Small delay to let the terminal fully restore
+                Thread.sleep(50);
+                System.out.print(output);
+                System.out.flush();
+            }
+        } else {
+            System.err.println("Drawing cancelled.");
         }
 
         return CommandResult.SUCCESS;
@@ -178,12 +191,22 @@ public class TambouiDraw implements Command<CommandInvocation> {
     }
 
     private boolean handleKeyEvent(KeyEvent key, TuiRunner runner) {
+        // Cancel: Ctrl+C / Ctrl+Q → quit without output
         if (key.isCtrlC() || (key.hasCtrl() && key.isCharIgnoreCase('q'))) {
             runner.quit();
             return true;
         }
-        if (key.hasCtrl() && key.isCharIgnoreCase('s')) {
-            saveDocument();
+
+        // Export art & quit: Enter / Ctrl+S
+        if (key.isKey(KeyCode.ENTER) || (key.hasCtrl() && key.isCharIgnoreCase('s'))) {
+            savedArt = state.exportArt();
+            runner.quit();
+            return true;
+        }
+
+        // Save diagram file (stay in editor): Ctrl+D
+        if (key.hasCtrl() && key.isCharIgnoreCase('d')) {
+            saveDiagramFile();
             return true;
         }
 
@@ -261,14 +284,14 @@ public class TambouiDraw implements Command<CommandInvocation> {
         return null;
     }
 
-    private void saveDocument() {
+    private void saveDiagramFile() {
         if (filePath == null) {
             filePath = Path.of("drawing.termdraw");
             filename = "drawing.termdraw";
         }
         try {
             DocumentIO.save(state.exportDocument(), filePath);
-            state.setStatus("Saved to " + filePath);
+            state.setStatus("Saved diagram to " + filePath);
         } catch (Exception e) {
             state.setStatus("Save failed: " + e.getMessage());
         }
