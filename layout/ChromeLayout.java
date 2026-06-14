@@ -90,8 +90,8 @@ public final class ChromeLayout {
         for (int x = 1; x < dividerX; x++) set(buffer, area, x, y, " ", Style.EMPTY.bg(Theme.PANEL_BG));
 
         int x = 1;
-        // "termDRAW!" in accent
-        x = writeString(buffer, area, x, y, "termDRAW!", Style.EMPTY.fg(Theme.ACCENT).bg(Theme.PANEL_BG).bold());
+        // "tambouiDRAW!" in accent
+        x = writeString(buffer, area, x, y, "tambouiDRAW!", Style.EMPTY.fg(Theme.ACCENT).bg(Theme.PANEL_BG).bold());
 
         // "  tool:" dim
         x = writeString(buffer, area, x, y, "  tool:", Theme.DIM_STYLE);
@@ -169,7 +169,7 @@ public final class ChromeLayout {
 
     private static void renderTooSmall(Rect area, Buffer buffer) {
         String[] lines = {
-            "Terminal too small for termDRAW!",
+            "Terminal too small for tambouiDRAW!",
             "Need at least " + Theme.MIN_WIDTH + "x" + Theme.MIN_HEIGHT + ".",
             "Resize and try again."
         };
