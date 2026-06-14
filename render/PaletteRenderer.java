@@ -7,169 +7,146 @@ import dev.tamboui.style.*;
 import model.Enums.*;
 import state.DrawState;
 
+/**
+ * Right-hand palette with boxed tool buttons, inline style rows beneath the
+ * active tool, and a 4-column color swatch grid — matching the TS version.
+ */
 public final class PaletteRenderer {
     private PaletteRenderer() {}
 
     public static void render(Rect area, Buffer buffer, DrawState state) {
-        // Clear palette area
+        // Clear palette background
         for (int y = area.y(); y < area.bottom(); y++) {
             for (int x = area.x(); x < area.right(); x++) {
-                buffer.set(x, y, new Cell(" ", Style.EMPTY));
+                buffer.set(x, y, new Cell(" ", Style.EMPTY.bg(Theme.PANEL_BG)));
             }
         }
 
+        int x0 = area.x();
+        int maxW = Math.min(Theme.TOOL_BUTTON_WIDTH, area.width());
         int y = area.y();
-        int leftPad = area.x() + 1; // 1 cell padding after border
 
-        // === Tool Buttons ===
-        y = renderLabel(buffer, leftPad, y, area, "TOOLS", Style.EMPTY.fg(Color.CYAN).bold());
-        y++;
+        String modeLabel = state.getModeLabel();
 
-        DrawMode[] modes = DrawMode.values();
-        String[] labels = {"Select", "Box", "Line", "Elbow", "Paint", "Text"};
-        String[] hotkeys = {"a", "u", "p", "e", "b", "t"};
-        for (int i = 0; i < modes.length && y < area.bottom(); i++) {
-            boolean active = state.currentMode() == modes[i];
-            Style s = active ? Theme.ACTIVE_TOOL_STYLE : Theme.INACTIVE_TOOL_STYLE;
-            String prefix = active ? "▸ " : "  ";
-            String label = prefix + labels[i] + " [" + hotkeys[i] + "]";
-            renderLabel(buffer, leftPad, y, area, label, s);
-            y++;
-        }
-
+        // ── Color swatches (top of palette) ─────────────────────────────
+        y = renderColorSwatches(buffer, x0, y, area, state);
         y++; // spacer
 
-        // === Style Options (mode-specific) ===
-        if (y < area.bottom()) {
-            y = renderStyleSection(buffer, leftPad, y, area, state);
-        }
+        // ── Boxed tool buttons with inline style rows ───────────────────
+        for (var tool : Theme.TOOLS) {
+            if (y + Theme.TOOL_BUTTON_HEIGHT > area.bottom()) break;
 
-        y++; // spacer
+            boolean isActive = tool.label().toUpperCase().equals(modeLabel)
+                || (tool.mode().equals("BRUSH") && modeLabel.equals("BRUSH"))
+                || (tool.mode().equals(modeLabel));
+            Color fg = isActive ? Theme.PANEL_BG : tool.color();
+            Color bg = isActive ? tool.color() : Theme.PANEL_BG;
+            Color border = isActive ? tool.color() : Theme.BORDER;
 
-        // === Color Swatches (4-column grid, 3 chars wide each) ===
-        if (y < area.bottom()) {
-            y = renderLabel(buffer, leftPad, y, area, "COLORS {/}", Style.EMPTY.fg(Color.CYAN).bold());
+            // ┌──────────┐
+            String topBorder = "┌" + "─".repeat(maxW - 2) + "┐";
+            writeString(buffer, x0, y, topBorder, Style.EMPTY.fg(border).bg(Theme.PANEL_BG).bold());
             y++;
-            InkColor[] colors = InkColor.values();
-            int cols = 4;
-            int swatchWidth = 3;
-            for (int i = 0; i < colors.length; i++) {
-                int col = i % cols;
-                int row = i / cols;
-                int sx = leftPad + col * swatchWidth;
-                int sy = y + row;
-                if (sy >= area.bottom() || sx + swatchWidth > area.right()) continue;
 
-                boolean active = state.currentInkColor() == colors[i];
-                Color bg = DrawingCanvas.toTamboColor(colors[i]);
-                Color fg = contrastFg(colors[i]);
-                String text = active ? " ● " : "   ";
-                Style s = active
-                    ? Style.EMPTY.fg(fg).bg(bg).bold()
-                    : Style.EMPTY.bg(bg);
-                for (int c = 0; c < text.length(); c++) {
-                    buffer.set(sx + c, sy, new Cell(String.valueOf(text.charAt(c)), s));
+            // │ ◎ Select │
+            String label = " " + tool.icon() + " " + tool.label() + " ";
+            label = padRight(label, maxW - 2);
+            set(buffer, x0, y, "│", Style.EMPTY.fg(border).bg(Theme.PANEL_BG).bold());
+            writeString(buffer, x0 + 1, y, label, Style.EMPTY.fg(fg).bg(bg).bold());
+            set(buffer, x0 + maxW - 1, y, "│", Style.EMPTY.fg(border).bg(Theme.PANEL_BG).bold());
+            y++;
+
+            // └──────────┘
+            String botBorder = "└" + "─".repeat(maxW - 2) + "┘";
+            writeString(buffer, x0, y, botBorder, Style.EMPTY.fg(border).bg(Theme.PANEL_BG).bold());
+            y++;
+
+            // ── Inline style rows beneath active tool ───────────────────
+            if (isActive) {
+                Theme.StyleOption[] opts = getStyleOptions(state);
+                String currentStyle = getCurrentStyleValue(state);
+                if (opts != null) {
+                    for (var opt : opts) {
+                        if (y >= area.bottom()) break;
+                        boolean styleActive = opt.style().equals(currentStyle);
+                        Color sFg = styleActive ? Theme.PANEL_BG : Theme.TEXT;
+                        Color sBg = styleActive ? Theme.WARNING : Theme.PANEL_BG;
+                        String text = padRight(opt.sample() + " " + opt.label(), maxW);
+                        writeString(buffer, x0, y, text,
+                            styleActive ? Style.EMPTY.fg(sFg).bg(sBg).bold() : Style.EMPTY.fg(sFg).bg(sBg));
+                        y++;
+                    }
                 }
             }
-            y += (colors.length + cols - 1) / cols; // advance past the swatch rows
         }
     }
 
-    private static int renderStyleSection(Buffer buffer, int x, int y, Rect area, DrawState state) {
-        DrawMode mode = state.currentMode();
+    private static int renderColorSwatches(Buffer buffer, int x0, int y, Rect area, DrawState state) {
+        InkColor[] colors = InkColor.values();
+        int cols = Theme.COLOR_SWATCH_COLUMNS;
+        int sw = Theme.COLOR_SWATCH_WIDTH;
 
-        return switch (mode) {
-            case BOX -> {
-                y = renderLabel(buffer, x, y, area, "BOX STYLE", Style.EMPTY.fg(Color.CYAN).bold());
-                y++;
-                for (BoxStyle style : BoxStyle.values()) {
-                    boolean active = state.currentBoxStyle() == style;
-                    Style s = active ? Theme.ACTIVE_STYLE_STYLE : Theme.INACTIVE_STYLE_STYLE;
-                    String prefix = active ? "▸ " : "  ";
-                    renderLabel(buffer, x, y, area, prefix + style.value(), s);
-                    y++;
-                    if (y >= area.bottom()) break;
-                }
-                yield y;
+        for (int i = 0; i < colors.length; i++) {
+            int col = i % cols;
+            int row = i / cols;
+            int sx = x0 + col * sw;
+            int sy = y + row;
+            if (sy >= area.bottom() || sx + sw > area.right()) continue;
+
+            boolean active = state.currentInkColor() == colors[i];
+            Color bg = DrawingCanvas.toTamboColor(colors[i]);
+            Color fg = contrastFg(colors[i]);
+            String text = active ? " • " : "   ";
+            Style s = active
+                ? Style.EMPTY.fg(fg).bg(bg).bold()
+                : Style.EMPTY.bg(bg);
+            for (int c = 0; c < text.length(); c++) {
+                buffer.set(sx + c, sy, new Cell(String.valueOf(text.charAt(c)), s));
             }
-            case LINE, ELBOW -> {
-                String title = mode == DrawMode.LINE ? "LINE STYLE" : "ELBOW STYLE";
-                y = renderLabel(buffer, x, y, area, title, Style.EMPTY.fg(Color.CYAN).bold());
-                y++;
-                LineStyle[] styles = mode == DrawMode.ELBOW
-                    ? new LineStyle[]{LineStyle.LIGHT, LineStyle.DOUBLE_, LineStyle.DASHED}
-                    : new LineStyle[]{LineStyle.SMOOTH, LineStyle.LIGHT, LineStyle.DOUBLE_};
-                for (LineStyle style : styles) {
-                    boolean active = state.currentLineStyle() == style;
-                    Style s = active ? Theme.ACTIVE_STYLE_STYLE : Theme.INACTIVE_STYLE_STYLE;
-                    String prefix = active ? "▸ " : "  ";
-                    renderLabel(buffer, x, y, area, prefix + style.value(), s);
-                    y++;
-                    if (y >= area.bottom()) break;
-                }
-                if (mode == DrawMode.ELBOW && y < area.bottom()) {
-                    y++;
-                    String orient = state.currentElbowOrientation() == ElbowOrientation.HORIZONTAL_FIRST
-                        ? "H-first" : "V-first";
-                    renderLabel(buffer, x, y, area, "Route: " + orient, Style.EMPTY.fg(Color.GRAY));
-                    y++;
-                }
-                yield y;
-            }
-            case PAINT -> {
-                y = renderLabel(buffer, x, y, area, "BRUSH", Style.EMPTY.fg(Color.CYAN).bold());
-                y++;
-                String[] brushes = {"#", "*", "+", "x", "o", ".", "•", "░", "▒", "▓"};
-                for (String brush : brushes) {
-                    boolean active = state.currentBrush().equals(brush);
-                    Style s = active ? Theme.ACTIVE_STYLE_STYLE : Theme.INACTIVE_STYLE_STYLE;
-                    String prefix = active ? "▸ " : "  ";
-                    renderLabel(buffer, x, y, area, prefix + brush, s);
-                    y++;
-                    if (y >= area.bottom()) break;
-                }
-                yield y;
-            }
-            case TEXT -> {
-                y = renderLabel(buffer, x, y, area, "TEXT BORDER", Style.EMPTY.fg(Color.CYAN).bold());
-                y++;
-                for (TextBorderMode tbm : TextBorderMode.values()) {
-                    boolean active = state.currentTextBorderMode() == tbm;
-                    Style s = active ? Theme.ACTIVE_STYLE_STYLE : Theme.INACTIVE_STYLE_STYLE;
-                    String prefix = active ? "▸ " : "  ";
-                    renderLabel(buffer, x, y, area, prefix + tbm.value(), s);
-                    y++;
-                    if (y >= area.bottom()) break;
-                }
-                yield y;
-            }
-            case SELECT -> {
-                y = renderLabel(buffer, x, y, area, "SELECT MODE", Style.EMPTY.fg(Color.CYAN).bold());
-                y++;
-                renderLabel(buffer, x, y, area, "Click to select", Style.EMPTY.fg(Color.GRAY));
-                y++;
-                renderLabel(buffer, x, y, area, "Drag to move", Style.EMPTY.fg(Color.GRAY));
-                y++;
-                yield y;
-            }
+        }
+        return y + (colors.length + cols - 1) / cols;
+    }
+
+    private static Theme.StyleOption[] getStyleOptions(DrawState state) {
+        return switch (state.currentMode()) {
+            case BOX    -> Theme.BOX_STYLE_OPTIONS;
+            case LINE   -> Theme.LINE_STYLE_OPTIONS;
+            case ELBOW  -> Theme.ELBOW_STYLE_OPTIONS;
+            case PAINT  -> Theme.BRUSH_OPTIONS;
+            case TEXT   -> Theme.TEXT_BORDER_OPTIONS;
+            default     -> null;
         };
     }
 
-    /** Returns a contrasting foreground for readability on a colored swatch. */
+    private static String getCurrentStyleValue(DrawState state) {
+        return switch (state.currentMode()) {
+            case BOX         -> state.currentBoxStyle().value();
+            case LINE, ELBOW -> state.currentLineStyle().value();
+            case PAINT       -> state.currentBrush();
+            case TEXT        -> state.currentTextBorderMode().value();
+            default          -> null;
+        };
+    }
+
     private static Color contrastFg(InkColor color) {
-        // Dark text on light backgrounds, light text on dark backgrounds
         return switch (color) {
             case WHITE, YELLOW, CYAN -> Color.BLACK;
             default -> Color.WHITE;
         };
     }
 
-    /** Renders a string label and returns the same y (for chaining). */
-    private static int renderLabel(Buffer buffer, int x, int y, Rect area, String text, Style style) {
-        int maxLen = Math.min(text.length(), area.right() - x);
-        for (int i = 0; i < maxLen; i++) {
+    private static void set(Buffer buffer, int x, int y, String ch, Style style) {
+        buffer.set(x, y, new Cell(ch, style));
+    }
+
+    private static void writeString(Buffer buffer, int x, int y, String text, Style style) {
+        for (int i = 0; i < text.length(); i++) {
             buffer.set(x + i, y, new Cell(String.valueOf(text.charAt(i)), style));
         }
-        return y;
+    }
+
+    private static String padRight(String text, int width) {
+        if (text.length() >= width) return text.substring(0, width);
+        return text + " ".repeat(width - text.length());
     }
 }

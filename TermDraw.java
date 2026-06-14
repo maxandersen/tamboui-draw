@@ -108,7 +108,7 @@ public class TermDraw {
                 ? lastArea.width() - Theme.TOOL_PALETTE_WIDTH
                 : 0;
             if (paletteLeft > 0 && mouse.x() >= paletteLeft) {
-                int paletteTop = 1; // below header row
+                int paletteTop = 3; // below header + divider rows
                 if (PaletteHitTest.handleClick(mouse.x(), mouse.y(), paletteLeft, paletteTop, state)) {
                     return true;
                 }
