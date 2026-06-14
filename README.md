@@ -22,12 +22,8 @@ Ported from [termDRAW](https://github.com/nicholasgasior/termdraw) — the origi
 ## Run
 
 ```bash
-jbang tambouidraw@maxandersen/tamboui-draw
-```
-
-Or from a local clone:
-
-```bash
+git clone https://github.com/maxandersen/tamboui-draw.git
+cd tamboui-draw
 jbang TambouiDraw.java
 ```
 
