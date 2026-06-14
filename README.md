@@ -2,6 +2,8 @@
 
 A terminal-native diagramming app built with Java 26, [Tamboui](https://tamboui.dev), and [JBang](https://www.jbang.dev).
 
+![tambouiDRAW screenshot](screenshot.png)
+
 Ported from [termDRAW](https://github.com/nicholasgasior/termdraw) — the original TypeScript/Bun/[OpenTUI](https://github.com/nicholasgasior/opentui) implementation by [Nicholas Gasior](https://github.com/nicholasgasior).
 
 ## Features
