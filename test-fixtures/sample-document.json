@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "objects": [
+    {
+      "id": "obj-1",
+      "type": "box",
+      "z": 0,
+      "parentId": null,
+      "color": "cyan",
+      "left": 5,
+      "top": 3,
+      "right": 20,
+      "bottom": 10,
+      "style": "light"
+    },
+    {
+      "id": "obj-2",
+      "type": "line",
+      "z": 1,
+      "parentId": null,
+      "color": "white",
+      "x1": 10,
+      "y1": 5,
+      "x2": 15,
+      "y2": 8,
+      "style": "smooth"
+    },
+    {
+      "id": "obj-3",
+      "type": "elbow",
+      "z": 2,
+      "parentId": null,
+      "color": "green",
+      "x1": 1,
+      "y1": 1,
+      "x2": 10,
+      "y2": 8,
+      "style": "light",
+      "orientation": "horizontal-first"
+    },
+    {
+      "id": "obj-4",
+      "type": "paint",
+      "z": 3,
+      "parentId": null,
+      "color": "magenta",
+      "points": [{"x": 1, "y": 1}, {"x": 2, "y": 1}, {"x": 3, "y": 2}],
+      "brush": "#"
+    },
+    {
+      "id": "obj-5",
+      "type": "text",
+      "z": 4,
+      "parentId": null,
+      "color": "yellow",
+      "x": 25,
+      "y": 5,
+      "content": "Hello World",
+      "border": "single"
+    }
+  ]
+}

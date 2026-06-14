@@ -1,0 +1,21 @@
+# JBang cache
+.jbang/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Build artifacts
+*.class
+*.jar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# termDRAW documents (user files)
+*.termdraw
