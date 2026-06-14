@@ -18,16 +18,17 @@ public final class DrawingCanvas {
     private DrawingCanvas() {}
 
     /** Maps InkColor enum to Tamboui Color. */
+    /** Maps InkColor to the exact Tailwind hex values used by the TS version. */
     public static Color toTamboColor(InkColor color) {
         return switch (color) {
-            case WHITE -> Color.WHITE;
-            case RED -> Color.RED;
-            case ORANGE -> Color.YELLOW; // closest ANSI approximation
-            case YELLOW -> Color.YELLOW;
-            case GREEN -> Color.GREEN;
-            case CYAN -> Color.CYAN;
-            case BLUE -> Color.BLUE;
-            case MAGENTA -> Color.MAGENTA;
+            case WHITE   -> Color.rgb(226, 232, 240); // #e2e8f0 slate-100
+            case RED     -> Color.rgb(239, 68, 68);   // #ef4444 red-500
+            case ORANGE  -> Color.rgb(249, 115, 22);  // #f97316 orange-500
+            case YELLOW  -> Color.rgb(234, 179, 8);   // #eab308 yellow-500
+            case GREEN   -> Color.rgb(34, 197, 94);   // #22c55e green-500
+            case CYAN    -> Color.rgb(6, 182, 212);   // #06b6d4 cyan-500
+            case BLUE    -> Color.rgb(59, 130, 246);   // #3b82f6 blue-500
+            case MAGENTA -> Color.rgb(217, 70, 239);  // #d946ef fuchsia-500
         };
     }
 
