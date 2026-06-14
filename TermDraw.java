@@ -22,6 +22,7 @@ import io.DocumentIO;
 import layout.ChromeLayout;
 import model.*;
 import render.PaletteHitTest;
+import render.StartupLogo;
 import render.Theme;
 import state.*;
 import java.nio.file.*;
@@ -44,6 +45,7 @@ public class TermDraw {
             try {
                 DrawDocument doc = DocumentIO.load(filePath);
                 state.loadDocument(doc);
+                StartupLogo.dismiss();
             } catch (Exception e) {
                 state.setStatus("Failed to load: " + e.getMessage());
             }
@@ -64,9 +66,13 @@ public class TermDraw {
 
     private static boolean handleEvent(Event event, TuiRunner runner) {
         if (event instanceof KeyEvent key) {
+            StartupLogo.dismiss();
             return handleKeyEvent(key, runner);
         }
         if (event instanceof MouseEvent mouse) {
+            if (mouse.kind() != MouseEventKind.MOVE) {
+                StartupLogo.dismiss();
+            }
             return handleMouseEvent(mouse);
         }
         return false;

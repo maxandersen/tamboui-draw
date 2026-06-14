@@ -6,6 +6,7 @@ import dev.tamboui.layout.*;
 import dev.tamboui.style.*;
 import model.Enums.*;
 import render.*;
+import render.StartupLogo;
 import state.DrawState;
 
 /**
@@ -70,6 +71,11 @@ public final class ChromeLayout {
 
         Rect canvasArea = new Rect(area.x() + canvasLeft, area.y() + canvasTop, canvasWidth, canvasHeight);
         DrawingCanvas.render(canvasArea, buffer, state);
+
+        // Startup logo overlay (dismissed on first interaction)
+        if (!StartupLogo.isDismissed()) {
+            StartupLogo.render(canvasArea, buffer);
+        }
 
         // ── Palette (right of divider) ──────────────────────────────────
         int paletteLeft = dividerX + 1;
