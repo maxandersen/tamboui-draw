@@ -1,0 +1,8 @@
+{
+  "aliases": {
+    "tambouidraw": {
+      "script-ref": "TambouiDraw.java",
+      "description": "Terminal diagramming app built with Tamboui + JBang"
+    }
+  }
+}

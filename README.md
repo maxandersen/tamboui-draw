@@ -22,13 +22,13 @@ Ported from [termDRAW](https://github.com/nicholasgasior/termdraw) — the origi
 ## Run
 
 ```bash
-jbang TambouiDraw.java
+jbang tambouidraw@maxandersen/tamboui-draw
 ```
 
-Or directly from GitHub:
+Or from a local clone:
 
 ```bash
-jbang https://github.com/maxandersen/tamboui-draw/blob/main/TambouiDraw.java
+jbang TambouiDraw.java
 ```
 
 ## Keys
