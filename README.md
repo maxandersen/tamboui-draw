@@ -1,10 +1,22 @@
 # tamboui-draw
 
-A terminal-native diagramming app, ported from TypeScript/OpenTUI to Java 25/Tamboui.
+A terminal-native diagramming app built with Java 26, [Tamboui](https://tamboui.dev), and [JBang](https://www.jbang.dev).
+
+Ported from [termDRAW](https://github.com/nicholasgasior/termdraw) — the original TypeScript/Bun/[OpenTUI](https://github.com/nicholasgasior/opentui) implementation by [Nicholas Gasior](https://github.com/nicholasgasior).
+
+## Features
+
+- **5 drawing tools**: Box, Line, Elbow, Paint, Text
+- **Smart box borders** with automatic corner/junction joining
+- **Braille sub-cell rendering** for smooth diagonal lines
+- **Full mouse support** — click, drag, resize, marquee select
+- **Undo/redo** with 100-step history
+- **JSON document format** compatible with the original termDRAW
+- **Nord color theme**
 
 ## Requirements
 
-- Java 25+ (with preview features)
+- Java 26+ (with preview features)
 - [JBang](https://www.jbang.dev/) installed
 
 ## Run
@@ -13,21 +25,32 @@ A terminal-native diagramming app, ported from TypeScript/OpenTUI to Java 25/Tam
 jbang TermDraw.java
 ```
 
+Or directly from GitHub:
+
+```bash
+jbang https://github.com/maxandersen/tamboui-draw/blob/main/TermDraw.java
+```
+
 ## Keys
 
 | Key | Action |
 |-----|--------|
-| `b` | Box tool |
-| `l` | Line tool |
+| `a` | Select tool |
+| `u` | Box tool |
+| `p` | Line tool |
 | `e` | Elbow tool |
-| `p` | Paint tool |
+| `b` | Paint/Brush tool |
 | `t` | Text tool |
-| `s` | Select tool |
-| `Ctrl+Z` | Undo |
-| `Ctrl+Shift+Z` | Redo |
 | `[` / `]` | Cycle style (box/line/brush/border) |
 | `{` / `}` | Cycle ink color |
-| `q` | Quit |
+| `Ctrl+Z` | Undo |
+| `Ctrl+Y` / `Ctrl+Shift+Z` | Redo |
+| `Ctrl+S` | Save document |
+| `Ctrl+Q` | Quit |
+| `Tab` | Cycle tool mode |
+| `Escape` | Deselect |
+| Arrow keys | Move cursor / move selected object |
+| `Space` | Stamp brush (paint/line mode) |
 
 ## Project Structure
 
@@ -37,8 +60,14 @@ model/              # DrawObject sealed interface, records, enums
 state/              # DrawState, DragState, HitTest
 render/             # DrawingCanvas, GridRenderer, BorderGlyphs, BrailleRenderer
 input/              # KeyInput
-layout/             # ChromeLayout, HeaderFooter
+layout/             # ChromeLayout
 io/                 # DocumentIO, ExportUtils
 test/               # JUnit 5 tests
 test-fixtures/      # Sample documents
 ```
+
+## Credits
+
+- **Original**: [termDRAW](https://github.com/nicholasgasior/termdraw) by [Nicholas Gasior](https://github.com/nicholasgasior) — TypeScript/Bun/OpenTUI
+- **TUI framework**: [Tamboui](https://tamboui.dev) — Java terminal UI framework inspired by Ratatui
+- **Runner**: [JBang](https://www.jbang.dev) — run Java source files directly
