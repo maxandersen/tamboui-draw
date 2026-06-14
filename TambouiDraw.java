@@ -7,12 +7,7 @@
 //JAVAC_OPTIONS --enable-preview --release 26
 //JAVA_OPTIONS --enable-preview --enable-native-access=ALL-UNNAMED
 //REPOS mavencentral,sonatype-snapshots=https://central.sonatype.com/repository/maven-snapshots/
-//SOURCES model/*.java
-//SOURCES state/*.java
-//SOURCES render/*.java
-//SOURCES input/*.java
-//SOURCES layout/*.java
-//SOURCES io/*.java
+// See end of file for //SOURCES listing all source files
 
 import dev.tamboui.tui.*;
 import dev.tamboui.tui.event.*;
@@ -297,3 +292,37 @@ public class TambouiDraw implements Command<CommandInvocation> {
         }
     }
 }
+
+// JBang remote sources — used when running via catalog (tambouidraw@maxandersen/tamboui-draw)
+// Local glob //SOURCES at the top of this file are used when running from a clone.
+// When both resolve, JBang may report duplicate classes — use --fresh to clear cache.
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/input/KeyInput.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/io/DocumentIO.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/io/ExportUtils.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/layout/ChromeLayout.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/BoxObject.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/DrawDocument.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/DrawObject.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/ElbowObject.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/Enums.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/Geometry.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/LineObject.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/ObjectUtils.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/PaintObject.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/Point.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/Rect.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/model/TextObject.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/BorderGlyphs.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/BrailleRenderer.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/DrawingCanvas.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/GridRenderer.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/LineRenderer.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/PaletteHitTest.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/PaletteRenderer.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/StartupLogo.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/render/Theme.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/state/DragState.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/state/DrawState.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/state/HitTest.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/state/PointerEvent.java
+//SOURCES https://github.com/maxandersen/tamboui-draw/blob/main/state/Snapshot.java
